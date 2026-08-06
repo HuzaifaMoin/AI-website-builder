@@ -2,7 +2,7 @@ import React, { useState, } from 'react'
 import LoginLeft from '../components/LoginLeft';
 import { Link, useNavigate } from 'react-router-dom';
 import { EyeOffIcon, EyeIcon, Loader2Icon } from 'lucide-react'
-import { useAppContext } from '../context/AppContext';
+import  {useAppContext}  from '../context/AppContext';
 
 const AuthPage = ({ mode }) => {
 
