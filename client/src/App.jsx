@@ -4,7 +4,7 @@ import AuthPage from './pages/AuthPage'
 import { AuthLayout, GuestLayout } from './pages/Layout'
 import HomePage from './pages/HomePage'
 import BuilderPage from './pages/BuilderPage'
-import Preview from './pages/Preview'
+import Preview from './pages/PreviewPage'
 import { Toaster } from 'react-hot-toast'
 import PublishPage from './pages/PublishPage'
 
