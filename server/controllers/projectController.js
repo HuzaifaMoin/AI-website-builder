@@ -129,7 +129,7 @@ onFileStart: async (path)=>{
             $push: {
                messages: {
                     role: "assistant",
-                    content: `❌ Generation failed: ${err.message}`,
+                    content: `Generation failed: ${err.message}`,
                     timestamp: new Date(),
                 }
             }
@@ -231,9 +231,7 @@ export async function updateProjectFiles(req, res){
 // Rebuild project files map with content & hashes
     const newFiles = {};
     for (const [path, content] of Object.entries(files)) {
-        if(typeof content === "string"){
             newFiles[path] = {content, hash: hashContent(content)}
-        }
     }
 
     project.files = newFiles;
@@ -241,9 +239,7 @@ export async function updateProjectFiles(req, res){
 
     const filesObj = {};
     for (const [path, entry] of Object.entries(project.files)) {
-        if(typeof content === "string"){
             filesObj[path] = entry.content;
-        }
     }
 
    res.json({
