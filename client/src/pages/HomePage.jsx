@@ -9,11 +9,12 @@ const HomePage = () => {
 
   const navigate = useNavigate()
 
-  const {user, projects, loadingProjects, generatingProject, loadProjects, handleGenerate,handleDelete, logout} = useAppContext()
+  const {user, loadingUser, projects, loadingProjects, generatingProject, loadProjects, handleGenerate,handleDelete, logout} = useAppContext()
 
   useEffect(()=>{
-    loadProjects()
-  },[loadProjects])
+    if (loadingUser || !user) return;
+    loadProjects();
+  }, [loadingUser, user, loadProjects])
 
   return (
     <div className="h-screen overflow-y-scroll text-white font-sans bg-[url('/bg-img.png')] bg-cover bg-center bg-no-repeat">

@@ -81,7 +81,7 @@ export default defineConfig({
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>${project.name || "My Website"}</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <meta name="description" content="Generated website" />
 </head>
 <body>
   <div id="root"></div>

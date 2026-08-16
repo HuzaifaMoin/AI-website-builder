@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react'
-import {BotMessageSquareIcon, UserIcon } from 'lucide-react'
+import {BotMessageSquareIcon, UserIcon, BotIcon } from 'lucide-react'
 import PromptInput from './PromptInput'
 const ChatPanel = ({ messages, onSend, loading }) => {
 

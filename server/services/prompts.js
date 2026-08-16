@@ -208,7 +208,7 @@ Good copy makes design feel premium. Follow these rules:
 ## TECHNICAL RULES
 
 - Entry point is always /App.js (default export)
-- Use /styles.css for custom CSS (keyframes, font imports, global base styles). Tailwind is available globally via CDN.
+- Use /styles.css for custom CSS (keyframes, font imports, global base styles) and keep styles local to the project.
 - All components go in /components/ directory
 - Export all components as default exports
 - Use ONLY vanilla React with hooks — no external npm packages unless specified

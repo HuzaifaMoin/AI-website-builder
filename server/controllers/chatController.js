@@ -1,5 +1,6 @@
 import { Project } from "../models/Project.js";
 import { applyOperations } from '../services/diff.js'
+
 export function buildManifest(files){
     const manifest = [];
     for (const [path, entry] of Object.entries(files)) {

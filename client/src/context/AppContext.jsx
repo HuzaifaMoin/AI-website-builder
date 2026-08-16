@@ -22,16 +22,19 @@ export function AppContextProvider({ children }) {
   const [activeFile, setActiveFile] = useState("/App.js");
   const [showCode, setShowCode] = useState(false);
 
-  const checkSession = async () => {
+  const checkSession = useCallback(async () => {
     try {
       const { data } = await api.get("/api/auth/me");
       setUser(data.user);
     } catch (error) {
+      if (error?.response?.status !== 401) {
+        console.error("Session check failed:", error);
+      }
       setUser(null);
     } finally {
       setLoadingUser(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     checkSession();
@@ -84,18 +87,20 @@ export function AppContextProvider({ children }) {
   }
 
   // Projects Actions
-  const loadProjects = async () => {
-    if (!user) return;
+  const loadProjects = useCallback(async () => {
+    if (!user || loadingUser) return;
     try {
       const { data } = await api.get("/api/projects")
       setProjects(data)
     } catch (err) {
-      console.error("Failed to list projects:", err);
+      if (err?.response?.status !== 401) {
+        console.error("Failed to list projects:", err);
+      }
       toast.error("Failed to load projects list");
     } finally {
       setLoadingProjects(false);
     }
-  }
+  }, [loadingUser, user]);
 
   const loadProject = async (id, silent = false) => {
     if (!user) return;
