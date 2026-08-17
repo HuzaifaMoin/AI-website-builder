@@ -68,7 +68,20 @@ const previewUrl = id ? `/preview/${id}` : "#";
   return (
     <div className="h-screen flex flex-col bg-white overflow-hidden text-zinc-900 relative">
       {/* Top Bar Header */}
-      <BuilderHeader projectName={activeProject.name} version={activeProject.version} showCode={showCode} publishing={publishing} onToggleShowCode={() => setShowCode(!showCode)}     previewUrl={previewUrl} onPublish={handlePublish} onDownload={handleDownload} onBack={() => navigate('/')} onLogout={logout} />
+<BuilderHeader
+    projectName={activeProject.name}
+    version={activeProject.version}
+    showCode={showCode}
+    publishing={publishing}
+    previewUrl={previewUrl}
+    publishUrl={publishUrl}
+    onToggleShowCode={() => setShowCode(!showCode)}
+    onPublish={handlePublish}
+    onDownload={handleDownload}
+    onBack={() => navigate('/')}
+    onLogout={logout}
+/>
+
       {/* Main Layout */}
       <div className="flex-1 flex overflow-hidden">
         {/* Left Sidebar */}

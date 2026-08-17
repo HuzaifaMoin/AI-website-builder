@@ -7,6 +7,7 @@ const BuilderHeader = ({
     showCode,
     publishing,
     previewUrl,
+    publishUrl,
     onToggleShowCode,
     onOpenPreview,
     onPublish,
@@ -54,10 +55,35 @@ const BuilderHeader = ({
     Open Preview
 </a>
 
-            <button onClick={onPublish} disabled={publishing}
+            {/* <button onClick={onPublish} disabled={publishing}
             className='inline-flex items-center justify-center gap-1.5 py-1.5 px-3 border border-zinc-300 text-zinc-800 hover:bg-zinc-100 hover:text-zinc-900 text-s font-medium rounded-lg cursor-pointer bg-white'>
                 {publishing ? <Loader2Icon size={18} className="animate-spin"/> : <GlobeIcon size={18}/>} Publish
-            </button>
+            </button> */}
+            {publishUrl ? (
+    <a
+        href={publishUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="inline-flex items-center justify-center gap-1.5 py-1.5 px-3 border border-zinc-300 text-zinc-800 hover:bg-zinc-100 hover:text-zinc-900 text-sm font-medium rounded-lg cursor-pointer bg-white"
+    >
+        <GlobeIcon size={18} />
+        Open Published
+    </a>
+) : (
+    <button
+        type="button"
+        onClick={onPublish}
+        disabled={publishing}
+        className="inline-flex items-center justify-center gap-1.5 py-1.5 px-3 border border-zinc-300 text-zinc-800 hover:bg-zinc-100 hover:text-zinc-900 text-sm font-medium rounded-lg cursor-pointer bg-white disabled:opacity-50"
+    >
+        {publishing ? (
+            <Loader2Icon size={18} className="animate-spin" />
+        ) : (
+            <GlobeIcon size={18} />
+        )}
+        Publish
+    </button>
+)}
 
             <button onClick={onDownload}
             className='inline-flex items-center justify-center gap-1.5 py-1.5 px-3 border border-zinc-300 text-zinc-800 hover:bg-zinc-100 hover:text-zinc-900 text-s font-medium rounded-lg cursor-pointer bg-white'>
