@@ -53,10 +53,11 @@ import projectRouter from "./routes/projectRoutes.js";
 
 const app = express();
 
-const allowedOrigins = (
-  process.env.ORIGINS ||
-  "http://localhost:5173,https://ai-website-builder-z4os.vercel.app"
-)
+const allowedOrigins = [
+  process.env.ORIGINS,
+  'http://localhost:5173',
+  'https://ai-website-builder-z4os.vercel.app'
+]
   .split(",")
   .map((origin) => origin.trim())
   .filter(Boolean);
@@ -74,8 +75,8 @@ app.use(
   })
 );
 
-app.use(cookieParser());
 app.use(express.json());
+app.use(cookieParser());
 
 app.get("/", (req, res) => {
   res.send("Server is Live!");
