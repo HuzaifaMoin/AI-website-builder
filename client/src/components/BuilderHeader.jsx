@@ -6,6 +6,7 @@ const BuilderHeader = ({
     version,
     showCode,
     publishing,
+    previewUrl,
     onToggleShowCode,
     onOpenPreview,
     onPublish,
@@ -39,10 +40,19 @@ const BuilderHeader = ({
                 )}
             </button>
 
-            <button onClick={onOpenPreview}
+            {/* <button onClick={onOpenPreview}
             className='inline-flex items-center justify-center gap-1.5 py-1.5 px-3 border border-zinc-300 text-zinc-800 hover:bg-zinc-100 hover:text-zinc-900 text-s font-medium rounded-lg cursor-pointer bg-white'>
                 <ExternalLinkIcon size={18} /> Open Preview
-            </button>
+            </button> */}
+            <a
+    href={previewUrl}
+    target="_blank"
+    rel="noopener noreferrer"
+    className="inline-flex items-center justify-center gap-1.5 py-1.5 px-3 border border-zinc-300 text-zinc-800 hover:bg-zinc-100 hover:text-zinc-900 text-s font-medium rounded-lg cursor-pointer bg-white"
+>
+    <ExternalLinkIcon size={18} />
+    Open Preview
+</a>
 
             <button onClick={onPublish} disabled={publishing}
             className='inline-flex items-center justify-center gap-1.5 py-1.5 px-3 border border-zinc-300 text-zinc-800 hover:bg-zinc-100 hover:text-zinc-900 text-s font-medium rounded-lg cursor-pointer bg-white'>

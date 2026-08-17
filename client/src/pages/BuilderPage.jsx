@@ -30,13 +30,14 @@ const BuilderPage = () => {
     loadProject(id)
   }, [id])
 
-const handleOpenPreview = () => {
-    if (!id) return;
+// const handleOpenPreview = () => {
+//     if (!id) return;
 
-    const previewUrl = `${window.location.origin}/preview/${id}`;
+//     const previewUrl = `${window.location.origin}/preview/${id}`;
 
-    window.open(previewUrl, "_blank", "noopener,noreferrer");
-};
+//     window.open(previewUrl, "_blank", "noopener,noreferrer");
+// };
+const previewUrl = id ? `/preview/${id}` : "#";
 
   const handlePublish = async () => {
         if (!id) return;
@@ -67,7 +68,7 @@ const handleOpenPreview = () => {
   return (
     <div className="h-screen flex flex-col bg-white overflow-hidden text-zinc-900 relative">
       {/* Top Bar Header */}
-      <BuilderHeader projectName={activeProject.name} version={activeProject.version} showCode={showCode} publishing={publishing} onToggleShowCode={() => setShowCode(!showCode)} onOpenPreview={handleOpenPreview} onPublish={handlePublish} onDownload={handleDownload} onBack={() => navigate('/')} onLogout={logout} />
+      <BuilderHeader projectName={activeProject.name} version={activeProject.version} showCode={showCode} publishing={publishing} onToggleShowCode={() => setShowCode(!showCode)}     previewUrl={previewUrl} onPublish={handlePublish} onDownload={handleDownload} onBack={() => navigate('/')} onLogout={logout} />
       {/* Main Layout */}
       <div className="flex-1 flex overflow-hidden">
         {/* Left Sidebar */}
