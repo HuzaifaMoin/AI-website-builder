@@ -2,6 +2,14 @@ import app from "../server.js";
 import { connectToDatabase } from "../config/db.js";
 
 export default async function handler(req, res) {
-  await connectToDatabase();
-  return app(req, res);
+  try {
+    await connectToDatabase();
+    return app(req, res);
+  } catch (error) {
+    console.error("Database connection error:", error);
+
+    return res.status(500).json({
+      error: "Database connection failed",
+    });
+  }
 }
