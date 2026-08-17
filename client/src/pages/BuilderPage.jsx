@@ -30,12 +30,13 @@ const BuilderPage = () => {
     loadProject(id)
   }, [id])
 
-  const handleOpenPreview = () => {
-    if (!id) {
-      return;
-    }
-    window.open(`/preview/${id}`, "_blank")
-  }
+const handleOpenPreview = () => {
+    if (!id) return;
+
+    const previewUrl = `${window.location.origin}/preview/${id}`;
+
+    window.open(previewUrl, "_blank", "noopener,noreferrer");
+};
 
   const handlePublish = async () => {
         if (!id) return;
