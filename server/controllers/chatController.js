@@ -1,5 +1,6 @@
 import { Project } from "../models/Project.js";
 import { applyOperations } from '../services/diff.js'
+import { reviseProject } from '../services/ai.js'
 
 export function buildManifest(files){
     const manifest = [];
@@ -21,7 +22,7 @@ export async function chat(req, res){
 
     if(!req.user){
         res.status(401).json({ error: "Unauthorized" });
-        
+        return;
     }
 
     const project = await Project.findOne({_id: req.params.id, owner: req.user.userId})
@@ -32,7 +33,7 @@ export async function chat(req, res){
     }
 
     // Set status to revising and save user prompt immediately
-    project.status = "revising",
+    project.status = "revising";
     project.messages.push({role: "user", content: prompt, timestamp: new Date()});
     await project.save();
 
@@ -62,8 +63,7 @@ export async function chat(req, res){
         const result = await reviseProject(prompt, manifest,
         relevantFiles, recentMessages)
 
-        console.log(`[AI] Got ${result.operations.length} operations: $
-        {result.description}`);
+        console.log(`[AI] Got ${result.operations.length} operations: ${result.description}`);
 
        // Apply operations to file map
         const { files: updatedFiles, applied, errors } = applyOperations

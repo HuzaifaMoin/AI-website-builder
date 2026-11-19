@@ -4,6 +4,55 @@
 // Void HTML elements that must be self-closed in JSX
 const VOID_ELEMENTS = ["area", "base", "br", "col", "embed", "hr", "img", "input", "link", "meta", "param", "source", "track", "wbr"];
 
+// --- Image URL repair ---
+// Models sometimes use an Unsplash *page* link (unsplash.com/photos/...) or the
+// deprecated source.unsplash.com service as an <img> src. Neither returns an image,
+// so the picture shows as broken. Replace them with verified direct image URLs
+// (the same IDs listed in prompts.js), picked by keywords in the surrounding code.
+const VERIFIED_IMAGES = {
+    tech: ["photo-1498050108023-c5249f4df085", "photo-1486312338219-ce68d2c6f44d", "photo-1555066931-4365d14bab8c"],
+    dashboard: ["photo-1531403009284-440f080d1e12", "photo-1607798748738-b15c40d33d57", "photo-1460925895917-afdab827c52f"],
+    abstract: ["photo-1618005182384-a83a8bd57fbe", "photo-1557683316-973673baf926", "photo-1519608487953-e999c86e7455"],
+    female: ["photo-1494790108377-be9c29b29330", "photo-1534528741775-53994a69daeb", "photo-1438761681033-6461ffad8d80"],
+    male: ["photo-1507003211169-0a1dd7228f2d", "photo-1500648767791-00dcc994a43e", "photo-1472099645785-5658abf4ff4e"],
+    business: ["photo-1486406146926-c627a92ad1ab", "photo-1454165804606-c3d57bc86b40"],
+    product: ["photo-1523275335684-37898b6baf30", "photo-1491553895911-0055eca6402d"],
+    food: ["photo-1476224203421-9ac39bcb3327", "photo-1565299624946-b28f40a0ae38"],
+    nature: ["photo-1470071459604-3b5ec3a7fe05", "photo-1507525428034-b723cf961d3e"],
+};
+
+const IMAGE_CATEGORY_KEYWORDS = [
+    ["female", /\b(woman|women|female|girl|she|her|sarah|emily|jessica|maria|aisha|fatima)\b/i],
+    ["male", /\b(man|men|male|guy|he|his|john|michael|david|ahmed|ali)\b/i],
+    ["food", /\b(food|meal|restaurant|dish|recipe|cafe|pizza|burger|kitchen)\b/i],
+    ["nature", /\b(nature|forest|beach|mountain|eco|green|plant|ocean|travel)\b/i],
+    ["dashboard", /\b(dashboard|analytics|chart|saas|metrics)\b/i],
+    ["tech", /\b(code|developer|laptop|tech|software|computer|app)\b/i],
+    ["business", /\b(office|business|team|meeting|company|corporate)\b/i],
+    ["product", /\b(product|bottle|shop|store|ecommerce|item|package|detergent|watch|shoe)\b/i],
+];
+
+const BROKEN_IMAGE_URL = /https?:\/\/(?:www\.)?(?:unsplash\.com\/(?:photos|s\/photos|images)\/[^\s'"`)]*|source\.unsplash\.com\/[^\s'"`)]*|images\.unsplash\.com\/(?!photo-)[^\s'"`)]*)/gi;
+
+function pickVerifiedImage(context, index) {
+    const match = IMAGE_CATEGORY_KEYWORDS.find(([, re]) => re.test(context));
+    const list = VERIFIED_IMAGES[match ? match[0] : "abstract"];
+    return `https://images.unsplash.com/${list[index % list.length]}?auto=format&fit=crop&w=800&q=80`;
+}
+
+export function fixImageUrls(code, filePath) {
+    const warnings = [];
+    let index = 0;
+    const fixed = code.replace(BROKEN_IMAGE_URL, (url, offset) => {
+        // Use nearby text (alt text, names, headings) to choose a fitting image.
+        const context = code.slice(Math.max(0, offset - 200), offset + url.length + 200);
+        const replacement = pickVerifiedImage(context, index++);
+        warnings.push(`${filePath}: Replaced non-image URL ${url.slice(0, 80)} with a verified Unsplash image`);
+        return replacement;
+    });
+    return { code: fixed, warnings };
+}
+
 // Validate and auto-fix common AI-generated code issues
 export function validateAndFixCode(code, filePath, context) {
     const warnings = [];
@@ -117,6 +166,11 @@ export function validateAndFixCode(code, filePath, context) {
         warnings.push(...fixResult.warnings);
     }
 
+    // 10. Replace image URLs that don't point to an actual image
+    const imageFix = fixImageUrls(code, filePath);
+    code = imageFix.code;
+    warnings.push(...imageFix.warnings);
+
     return { code: code.trim() + "\n", warnings };
 }
 
@@ -146,6 +200,11 @@ export function validateRevisionContent(content, filePath, op) {
         content = content.replace(/(<label[^>]*?)\bfor=/gi, "$1htmlFor=");
         warnings.push(`${filePath}: Fixed 'for=' → 'htmlFor=' in replacement`);
     }
+
+    // Replace image URLs that don't point to an actual image
+    const imageFix = fixImageUrls(content, filePath);
+    content = imageFix.code;
+    warnings.push(...imageFix.warnings);
 
     // Self-close void elements
     for (const tag of VOID_ELEMENTS) {

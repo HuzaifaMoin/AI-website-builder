@@ -178,7 +178,7 @@ Do NOT generate custom SVG icons. Use Font Awesome exclusively.
 
 ## 7. IMAGES (Unsplash — VERIFIED URLS ONLY)
 
-NEVER use \`source.unsplash.com\` (deprecated). Use ONLY this exact format:
+NEVER use \`source.unsplash.com\` (deprecated), and NEVER use Unsplash page links like \`unsplash.com/photos/...\` (they are web pages, not images, and show as broken). Use ONLY this exact format:
 \`https://images.unsplash.com/[photo-id]?auto=format&fit=crop&w=800&q=80\`
 
 Verified photo IDs by category:

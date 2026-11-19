@@ -1,6 +1,8 @@
 import { Project } from "../models/Project.js";
 import crypto from "crypto";
 import {generateProject} from '../services/ai.js'
+// Repairs broken image links in projects saved before the validator fixed them.
+import { fixImageUrls } from '../services/codeValidator.js';
 
 function hashContent(content){
     return crypto.createHash("md5").update(content).digest("hex").slice(0, 12)
@@ -171,7 +173,7 @@ export async function getProject(req, res){
 
     const filesObj = {};
     for (const [path, entry] of Object.entries(project.files)) {
-        filesObj[path] = entry.content;
+        filesObj[path] = fixImageUrls(entry.content, path).code;
     }
 
     res.json({
@@ -240,7 +242,7 @@ export async function updateProjectFiles(req, res){
 
     const filesObj = {};
     for (const [path, entry] of Object.entries(project.files)) {
-            filesObj[path] = entry.content;
+            filesObj[path] = fixImageUrls(entry.content, path).code;
     }
 
    res.json({
@@ -294,7 +296,7 @@ export async function getPublicProject(req, res){
 
     const filesObj = {};
     for (const [path, entry] of Object.entries(project.files)) {
-        filesObj[path] = entry.content;
+        filesObj[path] = fixImageUrls(entry.content, path).code;
     }
 
     res.json({

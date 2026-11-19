@@ -3,7 +3,6 @@ import { generateObject } from 'ai';
 import pMap from "p-map";
 import { FileCodeSchema, FilePlanSchema, RevisionResultSchema } from './aiSchemas.js';
 import { buildFileCodeSystem, FILE_PLAN_SYSTEM, REVISE_SYSTEM } from './prompts.js';
-import { el } from 'zod/v4/locales';
 import { normalizeContent } from './contentNormalizer.js';
 import { validateAndFixCode, validateRevisionContent } from './codeValidator.js';
 
@@ -17,6 +16,21 @@ const openrouter = createOpenAI({
 })
 
 const model = openrouter(MODEL);
+const FALLBACK_MODEL = "openrouter/free";
+const fallbackModel = MODEL === FALLBACK_MODEL ? null : openrouter(FALLBACK_MODEL);
+const AI_TIMEOUT_MS = parseInt(process.env.AI_TIMEOUT_MS || "90000", 10);
+
+// generateObject with a hard timeout, falling back to OpenRouter's free router
+// when the configured model is busy, rate limited or too slow.
+async function generateWithFallback(options){
+    try {
+        return await generateObject({ ...options, model, abortSignal: AbortSignal.timeout(AI_TIMEOUT_MS) });
+    } catch (err) {
+        if(!fallbackModel) throw err;
+        console.warn(`[AI] ${MODEL} failed (${err?.message}); retrying with ${FALLBACK_MODEL}`);
+        return await generateObject({ ...options, model: fallbackModel, abortSignal: AbortSignal.timeout(AI_TIMEOUT_MS) });
+    }
+}
 
 // Generate a single file's code
 async function generateSingleFile(file, allFiles, prompt, alreadyGeneratedFiles){
@@ -25,8 +39,7 @@ async function generateSingleFile(file, allFiles, prompt, alreadyGeneratedFiles)
      const userMsg = `Project: ${prompt}\n\nWrite the complete code for: ${file.path}\nPurpose: ${file.description}`;
 
      console.log(`[AI] Creating file: ${file.path}...`);
-     const { object } = await generateObject({
-        model,
+     const { object } = await generateWithFallback({
         schema: FileCodeSchema,
         system,
         prompt: userMsg,
@@ -56,8 +69,7 @@ async function generateSingleFile(file, allFiles, prompt, alreadyGeneratedFiles)
 export async function generateProject(prompt, callbacks){
     // Phase 1: Plan
     console.log(`[AI] Phase 1: Planning file structure for: "${prompt.slice(0,80)}..."`);
-    const { object: plan } = await generateObject({
-        model,
+    const { object: plan } = await generateWithFallback({
         schema: FilePlanSchema,
         system: FILE_PLAN_SYSTEM,
         prompt: `Plan a React website for: ${prompt}`,
@@ -141,15 +153,18 @@ export async function generateProject(prompt, callbacks){
         const failedPaths = pendingFiles.map((f)=>f.path).join(", ");
         console.error(`[AI] Failed to generate ${pendingFiles.length} files after all retry rounds: ${failedPaths}`);
 
-        if (pendingFiles.some((f) => f.path === "/App.js")){
+        // App.js is required (checked below). Other failed files get a placeholder
+        // so the rest of the site still renders.
+        for (const file of pendingFiles) {
+            if (file.path === "/App.js") continue;
             const ext = file.path.split(".").pop()?.toLowerCase();
 
             if(ext === "css"){
                 files[file.path] = `/* ${file.description} — Generation failed, please retry */\n`
             }else{
-                files[file.path] = "import React from 'react';\n\n" + 
+                files[file.path] = "import React from 'react';\n\n" +
                 `// ⚠️ This file could not be generated. Please retry.\n` +
-                `// Purpose: ${file.description}\n\n` + 
+                `// Purpose: ${file.description}\n\n` +
                 "export default function Placeholder() {\n" +
                 "  return (\n" +
                     "    <div className='p-8 text-center text-zinc-400'>\n" +
@@ -159,7 +174,6 @@ export async function generateProject(prompt, callbacks){
                     "}\n";
             }
         }
-
     }
 
     if(!files["/App.js"]){
@@ -197,8 +211,7 @@ export async function reviseProject(prompt, manifest, relevantFiles, recentMessa
 
     console.log("[AI] Revising project...");
 
-    const { object: rawParsed } = await generateObject({
-        model,
+    const { object: rawParsed } = await generateWithFallback({
         schema: RevisionResultSchema,
         system: REVISE_SYSTEM,
         prompt: contextParts.join("\n"),
